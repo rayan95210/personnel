@@ -1,6 +1,7 @@
 package personnel;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 
 /**
  * Employé d'une ligue hébergée par la M2L. Certains peuvent 
@@ -16,15 +17,24 @@ public class Employe implements Serializable, Comparable<Employe>
 	private String nom, prenom, password, mail;
 	private Ligue ligue;
 	private GestionPersonnel gestionPersonnel;
+	private LocalDate dateArrivee, dateDepart;
 	
 	Employe(GestionPersonnel gestionPersonnel, Ligue ligue, String nom, String prenom, String mail, String password)
 	{
+		this(gestionPersonnel, ligue, nom, prenom, mail, password, null, null);
+	}
+
+	Employe(GestionPersonnel gestionPersonnel, Ligue ligue, String nom, String prenom, String mail, String password, LocalDate dateArrivee, LocalDate dateDepart)
+	{
+		verifierDates(dateArrivee, dateDepart);
 		this.gestionPersonnel = gestionPersonnel;
 		this.nom = nom;
 		this.prenom = prenom;
 		this.password = password;
 		this.mail = mail;
 		this.ligue = ligue;
+		this.dateArrivee = dateArrivee;
+		this.dateDepart = dateDepart;
 	}
 	
 	/**
@@ -180,5 +190,36 @@ public class Employe implements Serializable, Comparable<Employe>
 		else
 			res += ligue.toString();
 		return res + ")";
+	}
+	
+	/**
+	 * Vérifie que la date de départ n'est pas avant la date d'arrivée.
+	 */
+	private static void verifierDates(LocalDate arrivee, LocalDate depart)
+	{
+		if (arrivee != null && depart != null && depart.isBefore(arrivee))
+			throw new DatesIncoherentes();
+	}
+
+	public LocalDate getDateArrivee()
+	{
+		return dateArrivee;
+	}
+
+	public void setDateArrivee(LocalDate dateArrivee)
+	{
+		verifierDates(dateArrivee, dateDepart);
+		this.dateArrivee = dateArrivee;
+	}
+
+	public LocalDate getDateDepart()
+	{
+		return dateDepart;
+	}
+
+	public void setDateDepart(LocalDate dateDepart)
+	{
+		verifierDates(dateArrivee, dateDepart);
+		this.dateDepart = dateDepart;
 	}
 }
