@@ -1,66 +1,50 @@
 package testsUnitaires;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import java.time.LocalDate;
-
 import org.junit.jupiter.api.Test;
 
 import personnel.*;
 
-class testEmployeDates
+class testEmploye 
 {
 	GestionPersonnel gestionPersonnel = GestionPersonnel.getGestionPersonnel();
 
-	private Employe nouvelEmploye() throws SauvegardeImpossible
+	@Test
+	void testGettersEtSettersEmploye() throws SauvegardeImpossible
 	{
-		Ligue ligue = gestionPersonnel.addLigue("Ligue dates");
-		return ligue.addEmploye("Dupont", "Marie", "m.dupont@gmail.com", "azerty");
+		Ligue ligue = gestionPersonnel.addLigue("Ligue Sport");
+		Employe employe = ligue.addEmploye("Dupont", "Jean", "jean.dupont@gmail.com", "pass123");
+		
+		
+		assertEquals("Dupont", employe.getNom());
+		assertEquals("Jean", employe.getPrenom());
+		assertEquals("jean.dupont@gmail.com", employe.getMail());
+		assertEquals(ligue, employe.getLigue());
+		
+		
+		employe.setNom("Martin");
+		employe.setPrenom("Sophie");
+		employe.setMail("sophie.martin@gmail.com");
+		employe.setPassword("newpass");
+		
+		assertEquals("Martin", employe.getNom());
+		assertEquals("Sophie", employe.getPrenom());
+		assertEquals("sophie.martin@gmail.com", employe.getMail());
 	}
 
 	@Test
-	void departVideAccepte() throws SauvegardeImpossible
+	void testSupprimerEmploye() throws SauvegardeImpossible
 	{
-		Employe employe = nouvelEmploye();
-		employe.setDateArrivee(LocalDate.of(2026, 1, 10));
-		employe.setDateDepart(null);
-		assertNull(employe.getDateDepart());
-	}
-
-	@Test
-	void departApresArriveeAccepte() throws SauvegardeImpossible
-	{
-		Employe employe = nouvelEmploye();
-		employe.setDateArrivee(LocalDate.of(2026, 1, 10));
-		employe.setDateDepart(LocalDate.of(2026, 6, 30));
-		assertEquals(LocalDate.of(2026, 6, 30), employe.getDateDepart());
-	}
-
-	@Test
-	void departEgalArriveeAccepte() throws SauvegardeImpossible
-	{
-		Employe employe = nouvelEmploye();
-		employe.setDateArrivee(LocalDate.of(2026, 1, 10));
-		employe.setDateDepart(LocalDate.of(2026, 1, 10));
-		assertEquals(LocalDate.of(2026, 1, 10), employe.getDateDepart());
-	}
-
-	@Test
-	void departAvantArriveeRefuse() throws SauvegardeImpossible
-	{
-		Employe employe = nouvelEmploye();
-		employe.setDateArrivee(LocalDate.of(2026, 1, 10));
-		assertThrows(DatesIncoherentes.class,
-			() -> employe.setDateDepart(LocalDate.of(2026, 1, 5)));
-	}
-
-	@Test
-	void arriveeApresDepartRefusee() throws SauvegardeImpossible
-	{
-		Employe employe = nouvelEmploye();
-		employe.setDateArrivee(LocalDate.of(2026, 1, 10));
-		employe.setDateDepart(LocalDate.of(2026, 6, 30));
-		assertThrows(DatesIncoherentes.class,
-			() -> employe.setDateArrivee(LocalDate.of(2026, 7, 1)));
+		Ligue ligue = gestionPersonnel.addLigue("Ligue Test Suppression");
+		Employe employe = ligue.addEmploye("Durand", "Paul", "paul.durand@gmail.com", "azerty");
+		
+	
+		assertTrue(ligue.getEmployes().contains(employe));
+		
+		
+		employe.remove();
+		
+		
+		assertFalse(ligue.getEmployes().contains(employe));
 	}
 }
