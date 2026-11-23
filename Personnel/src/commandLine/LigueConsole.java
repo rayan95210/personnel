@@ -4,6 +4,9 @@ import static commandLineMenus.rendering.examples.util.InOut.getString;
 
 import java.util.ArrayList;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+
 import commandLineMenus.List;
 import commandLineMenus.Menu;
 import commandLineMenus.Option;
@@ -92,18 +95,87 @@ public class LigueConsole
 				);
 	}
 	
-	private Option ajouterEmploye(final Ligue ligue)
-	{
-		return new Option("ajouter un employé", "a",
-				() -> 
-				{
-					ligue.addEmploye(getString("nom : "), 
-						getString("prenom : "), getString("mail : "), 
-						getString("password : "));
-				}
-		);
-	}
-	
+
+private Option ajouterEmploye(final Ligue ligue)
+{
+    return new Option("ajouter un employé", "a",
+            () ->
+            {
+                String nom = getString("nom : ");
+                String prenom = getString("prenom : ");
+                String mail = getString("mail : ");
+                String password = getString("password : ");
+
+                LocalDate dateArrivee = saisirDate(
+                    "Date d'arrivée (AAAA-MM-JJ) : ", true
+                );
+
+                LocalDate dateDepart;
+
+                // On vérifie que la date de départ est cohérente
+                while (true)
+                {
+                    dateDepart = saisirDate(
+                        "Date de départ (AAAA-MM-JJ, vide si inconnue) : ",
+                        false
+                    );
+
+                    try
+                    {
+                        if (dateDepart != null &&
+                            dateDepart.isBefore(dateArrivee))
+                        {
+                            throw new DatesIncoherentes();
+                        }
+
+                        break;
+                    }
+                    catch (DatesIncoherentes exception)
+                    {
+                        System.err.println(
+                            "Erreur : la date de départ doit être après la date d'arrivée."
+                        );
+                    }
+                }
+
+                Employe employe = ligue.addEmploye(
+                    nom, prenom, mail, password
+                );
+
+                employe.setDateArrivee(dateArrivee);
+
+                if (dateDepart != null)
+                {
+                    employe.setDateDepart(dateDepart);
+                }
+            }
+    );
+}
+
+private LocalDate saisirDate(String message, boolean obligatoire)
+{
+    while (true)
+    {
+        String saisie = getString(message).trim();
+
+        // Une date vide est autorisée si elle n'est pas obligatoire
+        if (saisie.isEmpty() && !obligatoire)
+        {
+            return null;
+        }
+
+        try
+        {
+            return LocalDate.parse(saisie);
+        }
+        catch (DateTimeParseException exception)
+        {
+            System.err.println(
+                "Format incorrect. Utilisez AAAA-MM-JJ (exemple : 2026-09-01)."
+            );
+        }
+    }
+}
 private Menu gererEmployes(Ligue ligue)
 {
     Menu menu = new Menu("Gérer les employés de " + ligue.getNom(), "e");
