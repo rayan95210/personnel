@@ -47,3 +47,4 @@ void testDatesIncoherentes() throws SauvegardeImpossible
         employe.setDateDepart(LocalDate.of(2026, 8, 1))
     );
 }
+}
